@@ -3,6 +3,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+Map<String, String> registeredUsers = {}; // {phone: password}
+Map<String, String> userNames = {}; // {phone: name}
+
 void main() => runApp(const PayUPIApp());
 
 class PayUPIApp extends StatelessWidget {
@@ -47,8 +50,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/icons/LOGO.png', // ✅ Make sure this file exists and is listed in pubspec.yaml
+        child: Lottie.asset(
+          'assets/animations/newlogo.json', // ✅ Make sure this file exists and is listed in pubspec.yaml
           width: 500,
           height: 500,
           errorBuilder: (context, error, stackTrace) {
@@ -102,6 +105,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
     await Future.delayed(const Duration(seconds: 2));
     setState(() => isLoading = false);
 
+    // Save registration info locally for login match
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('reg_name', name);
+    await prefs.setString('reg_password', password);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -125,7 +133,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Image.asset('assets/icons/LOGO.png', height: 150),
+                Lottie.asset('assets/animations/newlogo.json', height: 150),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _nameController,
@@ -133,7 +141,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     labelText: 'Full Name',
                     prefixIcon: Icon(Icons.person),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: Color.fromARGB(150, 255, 255, 255),
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -216,6 +224,70 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class ForgotPasswordPage extends StatelessWidget {
+  const ForgotPasswordPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final TextEditingController _resetController = TextEditingController();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "🔐 Forgot Password",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            const Text(
+              "Enter your registered name to reset password",
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _resetController,
+              decoration: const InputDecoration(
+                labelText: "Full Name",
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                final registeredName = prefs.getString('reg_name') ?? '';
+                final registeredPassword =
+                    prefs.getString('reg_password') ?? '';
+
+                if (_resetController.text.trim() == registeredName) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Your password is: $registeredPassword"),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Name not found!")),
+                  );
+                }
+              },
+              child: const Text("Get Password"),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -375,6 +447,20 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ForgotPasswordPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(color: Colors.deepPurple),
+                    ),
                   ),
                 ],
               ),
@@ -1030,64 +1116,66 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Grid Buttons
+            // Grid Buttons - Stylish Compact Redesign
+            // Grid Buttons - Rounded Rectangle with Modern Styling and Animation
             GridView.count(
-              crossAxisCount: 4,
+              crossAxisCount: 3,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1,
               children:
                   features.map((item) {
-                    return InkWell(
-                      onTap:
-                          () => Navigator.push(
+                    return Material(
+                      color: Colors.white,
+                      elevation: 3,
+                      borderRadius: BorderRadius.circular(16),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        splashColor: item['color'].withOpacity(0.2),
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => item['page']),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 8,
                           ),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              item['color'].withOpacity(0.85),
-                              item['color'].withOpacity(0.65),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: item['color'].withOpacity(0.3),
-                              blurRadius: 6,
-                              offset: const Offset(0, 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: item['color'].withOpacity(0.4),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(item['icon'], size: 26, color: Colors.white),
-                            const SizedBox(height: 6),
-                            Text(
-                              item['label'],
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                item['icon'],
+                                size: 28,
+                                color: item['color'],
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                item['label'],
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }).toList(),
             ),
-
-            const SizedBox(height: 30),
-
             // Optional: Add more future widgets like offers, tips, etc.
           ],
         ),
