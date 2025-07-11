@@ -1,6 +1,8 @@
 # payupi
 
-A new Flutter project.
+Payment app!
+Prefered Running Device: Windows.
+Small project on a UPI app in Flutter
 
 ## Getting Started
 
