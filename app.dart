@@ -194,7 +194,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                     ),
                     child: const Text(
-                      "Register & Continue",
+                      "Register",
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
@@ -1053,7 +1053,6 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Greeting
             Row(
               children: [
                 const CircleAvatar(
@@ -1079,10 +1078,7 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            // Refer Banner (just below greeting)
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -1102,10 +1098,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Quick Actions Grid
             const SizedBox(height: 24),
-            // Section Header
             const Text(
               "Quick Actions",
               style: TextStyle(
@@ -1115,9 +1108,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-
-            // Grid Buttons - Stylish Compact Redesign
-            // Grid Buttons - Rounded Rectangle with Modern Styling and Animation
             GridView.count(
               crossAxisCount: 3,
               shrinkWrap: true,
@@ -1127,56 +1117,68 @@ class HomePage extends StatelessWidget {
               childAspectRatio: 1,
               children:
                   features.map((item) {
-                    return Material(
-                      color: Colors.white,
-                      elevation: 3,
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        splashColor: item['color'].withOpacity(0.2),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => item['page']),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 8,
-                          ),
-                          decoration: BoxDecoration(
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 0.95, end: 1.0),
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                      builder: (context, scale, child) {
+                        return Transform.scale(
+                          scale: scale,
+                          child: Material(
+                            color: Colors.white,
+                            elevation: 3,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: item['color'].withOpacity(0.4),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              splashColor: item['color'].withOpacity(0.2),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => item['page'],
+                                  ),
+                                );
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: item['color'].withOpacity(0.4),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      item['icon'],
+                                      size: 28,
+                                      color: item['color'],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      item['label'],
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                item['icon'],
-                                size: 28,
-                                color: item['color'],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                item['label'],
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                        );
+                      },
                     );
                   }).toList(),
             ),
-            // Optional: Add more future widgets like offers, tips, etc.
           ],
         ),
       ),
